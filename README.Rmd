@@ -1,0 +1,61 @@
+---
+title: "README"
+output: html_document
+---
+
+**UCI Human Activity Recognition Using Smartphones Data Set **
+
+References
+[1] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
+[2] David's Project FAQ https://class.coursera.org/getdata-016/forum/thread?thread_id=50
+
+The source data were formatted for machine learning. Experimental measurements were stored in matrix **X**. Each row of **X** is a single experiment. The 561 columns of **X** represent 561 features derived from accelerometer and gyroscope measurements. The vector **y** describes which of 6 activities was being performed during each experiment. The vector **subject** describes which of 30 human subjects performed each experiment.
+
+*1. Merge the training and the test sets to create one data set*
+
+The complete dataset were originally partitioned, 70% into a training set and 30% into a test set. To recapture the original dataset, the matrix **X** and vectors **y** and **subject** are merged using rbind().
+
+*Label matrix of features*
+
+The columns 1:561 of **X** are features whose names are contained in features.txt. Importing features.txt as the data frame **features** produces 2 columns, of which the second contains the labels in the correct order. Hence this column is passed to names(**X**).
+
+*2. Extract only the measurements on the mean and standard deviation for each measurement*
+
+A subset of features in **X** were derived by calculating the mean and standard deviation of signals. These are identified by their names of the form *-mean()*, *-std()* and *-meanFreq()*
+Features to keep include:
+1 tBodyAcc-mean()-X
+4 tBodyAcc-std()-X
+294 fBodyAcc-meanFreq()-X
+Features such as
+555 angle(tBodyAccMean,gravity)
+are discarded because although their names contain the word 'mean', they are measurements of angles rather than means of primitive features.
+
+Identify the column indices that match these regular expressions by calling grep() and store these in **relevant_columns**. **X** is then replaced by extracting only columns identified by **relevant_columns**.
+
+*3. Use descriptive activity names to name the activities in the data set*
+
+The vector **y** indicates the activity performed in each experiment with a number from 1 to 6. **y** is converted to a vector of factors with 6 levels. The levels can then be relabeled using descriptive names contained in activity_labels.txt. Specifically, importing activity_labels.txt produces 2 columns; the relevant names are in the second column.
+
+The activity names are converted to lower case, and underscores ("**_**") replaced with spaces.
+
+Relabeling is done with the plyr package and mapvalues(). Note that the 'from' and 'to' arguments of mapvalues() must be atomic vectors, so both arguments are converted first to vectors with as.character().
+
+Also, **y** is now an atomic vector and no longer a data frame, but this doesn't matter for the rest of the code.
+
+*4. Appropriately label the data set with descriptive variable names*
+
+The variable names, already labeled from section 1 above, are cleaned up by removing parentheses and correcting instances of "BodyBody" to "Body".
+
+Variables beginning with *t* or *f* are rewritten beginning with *time* or *freq* to denote whether the measurement was made in the time or the frequency domain.
+
+*5. Create a second, independent tidy data set with the average of each variable for each activity and each subject*
+
+At this point matrix **X** and vectors **y** and **subject** are merged. This could also have been done in section 1 above. Once merged, the new columns of **X** are renamed using rename() from the plyr package. The *subject* column is then set to a factor.
+
+The data frame is reshaped to narrow form using melt() from the reshape2 package. Then, dcast() is used to reshape into wide form. The call to dcast() includes a call to mean(), so that measurements belonging to the same subject and activity are aggregated into a single average.
+
+The final data frame is saved with write.table() as data_summary.txt. It can be read back into R with
+```{r}
+dat <- read.table("data_summary.txt")
+View (dat)
+```

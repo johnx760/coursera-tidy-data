@@ -1,0 +1,8 @@
+---
+title: "CodeBook"
+output: html_document
+---
+
+30 human subjects identified by unique ID
+6 activities identified by factor (levels = walking, walking upstairs, walking downstairs, sitting, standing, laying)
+79 numerical measured variables; data are averaged over all experiments involving that subject and activity
